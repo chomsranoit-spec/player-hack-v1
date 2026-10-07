@@ -1,0 +1,306 @@
+--[[
+    Script Name: player hack v1 (แบบพิเศษ)
+    Cover: 💫
+]]--
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+-- ป้องกันรันซ้ำซ้อน
+if CoreGui:FindFirstChild("PlayerHackGui") then
+    CoreGui.PlayerHackGui:Destroy()
+end
+
+-- สร้าง ScreenGui หลักใน CoreGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "PlayerHackGui"
+screenGui.Parent = CoreGui
+
+-- 1. ปุ่มวงกลมรูปดาว 💫 สำหรับเปิด/ปิดหน้าต่าง
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 20, 0.5, -25)
+toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleButton.Text = "💫"
+toggleButton.TextSize = 24
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Parent = screenGui
+
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(1, 0)
+local toggleStroke = Instance.new("UIStroke", toggleButton)
+toggleStroke.Color = Color3.fromRGB(200, 200, 200)
+toggleStroke.Thickness = 2
+
+-- 2. หน้าต่างหลักแนวตั้ง ธีมดำ-ขาว
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 480, 0, 340)
+mainFrame.Position = UDim2.new(0.5, -240, 0.5, -170)
+mainFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+local mainStroke = Instance.new("UIStroke", mainFrame)
+mainStroke.Color = Color3.fromRGB(60, 60, 65)
+mainStroke.Thickness = 1.5
+
+-- ระบบทำให้หน้าต่างลากเลื่อนไปมาได้ทั่วจอ
+local dragging, dragInput, dragStart, startPos
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if dragging and dragInput then
+        local delta = dragInput.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- แถบเมนูด้านซ้าย
+local sidebar = Instance.new("Frame", mainFrame)
+sidebar.Size = UDim2.new(0, 130, 1, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+sidebar.BorderSizePixel = 0
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
+
+-- ข้อความแสดงชื่อสคริปต์ที่มุมซ้ายบน: player hack v1 (แบบพิเศษ)
+local scriptTitleLabel = Instance.new("TextLabel", sidebar)
+scriptTitleLabel.Size = UDim2.new(1, -10, 0, 40)
+scriptTitleLabel.Position = UDim2.new(0, 5, 0, 8)
+scriptTitleLabel.BackgroundTransparency = 1
+scriptTitleLabel.Text = "player hack v1\n(แบบพิเศษ)"
+scriptTitleLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
+scriptTitleLabel.TextSize = 11
+scriptTitleLabel.Font = Enum.Font.GothamBold
+scriptTitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+scriptTitleLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+-- ปุ่มฟีเจอร์พิเศษ (⚡) ด้านซ้าย
+local tabButton = Instance.new("TextButton", sidebar)
+tabButton.Size = UDim2.new(0.9, 0, 0, 35)
+tabButton.Position = UDim2.new(0.05, 0, 0, 60)
+tabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+tabButton.Text = "  ⚡ ฟีเจอร์พิเศษ"
+tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+tabButton.TextSize = 11
+tabButton.Font = Enum.Font.GothamBold
+tabButton.TextXAlignment = Enum.TextXAlignment.Left
+Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
+
+-- ส่วนเนื้อหาด้านขวา
+local contentArea = Instance.new("Frame", mainFrame)
+contentArea.Size = UDim2.new(0, 335, 1, 0)
+contentArea.Position = UDim2.new(0, 135, 0, 0)
+contentArea.BackgroundTransparency = 1
+
+-- ช่องใส่ชื่อผู้เล่น (ตั้งค่า ClearTextOnFocus เป็น false เพื่อให้พิมพ์ต่อได้ไม่หาย)
+local textBox = Instance.new("TextBox", contentArea)
+textBox.Size = UDim2.new(0.92, 0, 0, 35)
+textBox.Position = UDim2.new(0.04, 0, 0, 15)
+textBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+textBox.PlaceholderText = "พิมพ์ชื่อผู้เล่นที่นี่..."
+textBox.Text = ""
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.PlaceholderColor3 = Color3.fromRGB(140, 140, 150)
+textBox.TextSize = 12
+textBox.Font = Enum.Font.Gotham
+textBox.ClearTextOnFocus = false
+Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 6)
+
+-- ปุ่มกดค้นหา
+local actionButton = Instance.new("TextButton", contentArea)
+actionButton.Size = UDim2.new(0.92, 0, 0, 32)
+actionButton.Position = UDim2.new(0.04, 0, 0, 58)
+actionButton.BackgroundColor3 = Color3.fromRGB(240, 240, 245)
+actionButton.Text = "🔍 ค้นหารหัสผ่าน"
+actionButton.TextColor3 = Color3.fromRGB(20, 20, 20)
+actionButton.TextSize = 12
+actionButton.Font = Enum.Font.GothamBold
+Instance.new("UICorner", actionButton).CornerRadius = UDim.new(0, 6)
+
+-- กล่องแสดงผลข้อมูล
+local resultFrame = Instance.new("Frame", contentArea)
+resultFrame.Size = UDim2.new(0.92, 0, 0, 145)
+resultFrame.Position = UDim2.new(0.04, 0, 0, 98)
+resultFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+Instance.new("UICorner", resultFrame).CornerRadius = UDim.new(0, 6)
+
+local resultText = Instance.new("TextLabel", resultFrame)
+resultText.Size = UDim2.new(0.58, -10, 1, -20)
+resultText.Position = UDim2.new(0, 10, 0, 10)
+resultText.BackgroundTransparency = 1
+resultText.Text = "สถานะ: รอข้อมูลผู้เล่น..."
+resultText.TextColor3 = Color3.fromRGB(200, 200, 210)
+resultText.TextSize = 10.5
+resultText.Font = Enum.Font.Code
+resultText.TextWrapped = true
+resultText.TextXAlignment = Enum.TextXAlignment.Left
+resultText.TextYAlignment = Enum.TextYAlignment.Top
+
+-- รูปแสดงใบหน้าตัวละคร Roblox (Avatar Thumbnail)
+local avatarImage = Instance.new("ImageLabel", resultFrame)
+avatarImage.Size = UDim2.new(0, 90, 0, 90)
+avatarImage.Position = UDim2.new(0.60, 0, 0.1, 0)
+avatarImage.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+avatarImage.Image = ""
+Instance.new("UICorner", avatarImage).CornerRadius = UDim.new(0, 8)
+
+-- 3 ปุ่มล่างสุด
+local btnWidth = 0.29
+local btnY = 252
+
+local copyNameBtn = Instance.new("TextButton", contentArea)
+copyNameBtn.Size = UDim2.new(btnWidth, 0, 0, 30)
+copyNameBtn.Position = UDim2.new(0.04, 0, 0, btnY)
+copyNameBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+copyNameBtn.Text = "คัดลอกชื่อ"
+copyNameBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyNameBtn.TextSize = 10
+Instance.new("UICorner", copyNameBtn).CornerRadius = UDim.new(0, 6)
+
+local copyPassBtn = Instance.new("TextButton", contentArea)
+copyPassBtn.Size = UDim2.new(btnWidth, 0, 0, 30)
+copyPassBtn.Position = UDim2.new(0.355, 0, 0, btnY)
+copyPassBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+copyPassBtn.Text = "คัดลอกรหัส"
+copyPassBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyPassBtn.TextSize = 10
+Instance.new("UICorner", copyPassBtn).CornerRadius = UDim.new(0, 6)
+
+local copyLinkBtn = Instance.new("TextButton", contentArea)
+copyLinkBtn.Size = UDim2.new(btnWidth, 0, 0, 30)
+copyLinkBtn.Position = UDim2.new(0.67, 0, 0, btnY)
+copyLinkBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+copyLinkBtn.Text = "คัดลอกลิงก์"
+copyLinkBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyLinkBtn.TextSize = 10
+Instance.new("UICorner", copyLinkBtn).CornerRadius = UDim.new(0, 6)
+
+-- ตัวแปรเก็บค่าล่าสุด
+local lastTargetName = ""
+local lastPassword = ""
+
+-- ฟังก์ชันเปิด/ปิดหน้าต่าง
+local isOpen = false
+toggleButton.MouseButton1Click:Connect(function()
+    isOpen = not isOpen
+    mainFrame.Visible = isOpen
+end)
+
+-- ฟังก์ชันสุ่มรหัสแบบมั่วๆ เท่ๆ
+local function generateRandomPassword()
+    local patterns = {
+        function() return "Pass#" .. math.random(10000, 99999) end,
+        function() return "Secret_" .. math.random(1000, 9999) .. "!!end" end,
+        function() 
+            local chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$"
+            local p = ""
+            for i = 1, 10 do p = p .. string.sub(chars, math.random(1, #chars), math.random(1, #chars)) end
+            return p
+        end
+    }
+    return patterns[math.random(1, #patterns)]()
+end
+
+-- กดปุ่มค้นหา (แฮกเกอร์สไตล์ รัวข้อความตอนโหลด)
+local isProcessing = false
+actionButton.MouseButton1Click:Connect(function()
+    if isProcessing then return end
+    local target = textBox.Text
+    
+    if target == "" then
+        resultText.Text = "⚠️ กรุณาใส่ชื่อผู้เล่นก่อน!"
+        avatarImage.Image = ""
+        return
+    end
+
+    isProcessing = true
+    lastTargetName = target
+    avatarImage.Image = ""
+    
+    -- จำลองข้อความแฮกเกอร์รัวๆ
+    resultText.Text = "[-] กำลังเชื่อมต่อเซิร์ฟเวอร์..."
+    task.wait(0.2)
+    resultText.Text = "[*] เจาะระบบไอพีเป้าหมาย: " .. target
+    task.wait(0.25)
+    resultText.Text = "[+] ถอดรหัสไฟร์วอลล์สำเร็จ..."
+    task.wait(0.25)
+    resultText.Text = "[!] ดึงข้อมูลลับกำลังดำเนินการ..."
+    task.wait(0.25)
+    
+    -- สุ่มโอกาสสำเร็จ
+    local isSuccess = math.random(1, 100) <= 85
+    
+    if isSuccess then
+        lastPassword = generateRandomPassword()
+        resultText.Text = string.format("เป้าหมาย: %s\nสถานะ: เจาะสำเร็จ ✨\n\nรหัสผ่าน:\n-> %s", target, lastPassword)
+        
+        -- ดึงรูปหน้าตัวละคร (Avatar Headshot)
+        pcall(function()
+            local userId = Players:GetUserIdFromNameAsync(target)
+            if userId then
+                local thumbType = Enum.ThumbnailType.HeadShot
+                local thumbSize = Enum.ThumbnailSize.Size420x420
+                local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+                avatarImage.Image = content
+            end
+        end)
+    else
+        lastPassword = ""
+        resultText.Text = string.format("เป้าหมาย: %s\nสถานะ: ล้มเหลว (ป้องกันหนาแน่น) ❌", target)
+    end
+    
+    isProcessing = false
+end)
+
+-- ปุ่มคัดลอกชื่อ
+copyNameBtn.MouseButton1Click:Connect(function()
+    if lastTargetName ~= "" and setclipboard then
+        setclipboard(lastTargetName)
+        copyNameBtn.Text = "คัดลอกแล้ว!"
+        task.wait(1.2)
+        copyNameBtn.Text = "คัดลอกชื่อ"
+    end
+end)
+
+-- ปุ่มคัดลอกรหัส
+copyPassBtn.MouseButton1Click:Connect(function()
+    if lastPassword ~= "" and setclipboard then
+        setclipboard(lastPassword)
+        copyPassBtn.Text = "คัดลอกแล้ว!"
+        task.wait(1.2)
+        copyPassBtn.Text = "คัดลอกรหัส"
+    end
+end)
+
+-- ปุ่มคัดลอกลิงก์
+copyLinkBtn.MouseButton1ListClick:Connect(function()
+    if setclipboard then
+        setclipboard("https://www.roblox.com")
+        copyLinkBtn.Text = "คัดลอกแล้ว!"
+        task.wait(1.2)
+        copyLinkBtn.Text = "คัดลอกลิงก์"
+    end
+end)
